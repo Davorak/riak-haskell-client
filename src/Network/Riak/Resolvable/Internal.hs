@@ -22,9 +22,7 @@ module Network.Riak.Resolvable.Internal
     , get
     , getMany
     , modify
-    , modifyM
     , modify_
-    , modifyM_
     , put
     , put_
     , putMany
@@ -154,43 +152,24 @@ put_ doPut conn bucket key mvclock0 val0 w dw =
     put doPut conn bucket key mvclock0 val0 w dw >> return ()
 {-# INLINE put_ #-}
 
-modify :: (Resolvable a) => Get a -> Put a
-       -> Connection -> Bucket -> Key -> R -> W -> DW -> (Maybe a -> IO (a,b))
-       -> IO (a,b)
-modify doGet doPut conn bucket key r w dw act = do
-  a0 <- get doGet conn bucket key r
-  (a,b) <- act (fst <$> a0)
-  (a',_) <- put doPut conn bucket key (snd <$> a0) a w dw
-  return (a',b)
-{-# INLINE modify #-}
-
-modifyM :: (MonadIO m, Resolvable a) => Get a -> Put a
+modify :: (MonadIO m, Resolvable a) => Get a -> Put a
        -> Connection -> Bucket -> Key -> R -> W -> DW -> (Maybe a -> m (a,b))
        -> m (a,b)
-modifyM doGet doPut conn bucket key r w dw act = do
+modify doGet doPut conn bucket key r w dw act = do
   a0 <- liftIO $ get doGet conn bucket key r
   (a,b) <- act (fst <$> a0)
   (a',_) <- liftIO $ put doPut conn bucket key (snd <$> a0) a w dw
   return (a',b)
-{-# INLINE modifyM #-}
+{-# INLINE modify #-}
 
-modify_ :: (Resolvable a) => Get a -> Put a
-        -> Connection -> Bucket -> Key -> R -> W -> DW -> (Maybe a -> IO a)
-        -> IO a
-modify_ doGet doPut conn bucket key r w dw act = do
-  a0 <- get doGet conn bucket key r
-  a <- act (fst <$> a0)
-  fst <$> put doPut conn bucket key (snd <$> a0) a w dw
-{-# INLINE modify_ #-}
-
-modifyM_ :: (MonadIO m, Resolvable a) => Get a -> Put a
+modify_ :: (MonadIO m, Resolvable a) => Get a -> Put a
         -> Connection -> Bucket -> Key -> R -> W -> DW -> (Maybe a -> m a)
         -> m a
-modifyM_ doGet doPut conn bucket key r w dw act = do
+modify_ doGet doPut conn bucket key r w dw act = do
   a0 <- liftIO $ get doGet conn bucket key r
   a <- act (fst <$> a0)
   liftIO $ fst <$> put doPut conn bucket key (snd <$> a0) a w dw
-{-# INLINE modifyM_ #-}
+{-# INLINE modify_ #-}
 
 putMany :: (Resolvable a) =>
            (Connection -> Bucket -> [(Key, Maybe VClock, a)] -> W -> DW

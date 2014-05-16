@@ -22,9 +22,7 @@ module Network.Riak.JSON.Resolvable
     , get
     , getMany
     , modify
-    , modifyM
     , modify_
-    , modifyM_
     -- * Low-level modification functions
     , put
     , put_
@@ -76,15 +74,6 @@ modify :: (FromJSON a, ToJSON a, Resolvable a) =>
 modify = R.modify J.get J.put
 {-# INLINE modify #-}
 
-modifyM :: (FromJSON a, ToJSON a, Resolvable a) =>
-          Connection -> Bucket -> Key -> R -> W -> DW
-       -> (Maybe a -> IO (a,b))
-       -- ^ Modification function.  Called with 'Just' the value if
-       -- the key is present, 'Nothing' otherwise.
-       -> IO (a,b)
-modifyM = R.modifyM J.get J.put
-{-# INLINE modifyM #-}
-
 -- | Modify a single value.  The value, if any, is retrieved using
 -- 'get'; conflict resolution is performed if necessary.  The
 -- modification function is called on the resulting value, and its
@@ -96,17 +85,11 @@ modifyM = R.modifyM J.get J.put
 -- If the 'put' phase of this function gives up due to apparently
 -- being stuck in a conflict resolution loop, it will throw a
 -- 'ResolutionFailure' exception.
-modify_ :: (FromJSON a, ToJSON a, Resolvable a) =>
-           Connection -> Bucket -> Key -> R -> W -> DW
-        -> (Maybe a -> IO a) -> IO a
-modify_ = R.modify_ J.get J.put
-{-# INLINE modify_ #-}
-
-modifyM_ :: (MonadIO m, FromJSON a, ToJSON a, Resolvable a) =>
+modify_ :: (MonadIO m, FromJSON a, ToJSON a, Resolvable a) =>
            Connection -> Bucket -> Key -> R -> W -> DW
         -> (Maybe a -> m a) -> m a
-modifyM_ = R.modifyM_ J.get J.put
-{-# INLINE modifyM_ #-}
+modify_ = R.modify_ J.get J.put
+{-# INLINE modify_ #-}
 
 -- | Store a single value, automatically resolving any vector clock
 -- conflicts that arise.  A single invocation of this function may
