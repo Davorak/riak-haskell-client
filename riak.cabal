@@ -94,7 +94,7 @@ library
     riak-protobuf >= 0.17.0.0,
     text >= 0.11.0.6,
     time,
-    transformers >= 3.0.0 && < 3.1
+    transformers >= 0.3.0.0 && < 0.3.1
 
   if flag(debug)
     cpp-options: -DASSERTS -DDEBUG
