@@ -37,6 +37,7 @@ module Network.Riak.Basic
     -- * Metadata
     , listBuckets
     , foldKeys
+    , foldKeysM
     , getBucket
     , setBucket
     -- * Map/reduce
@@ -58,6 +59,8 @@ import qualified Data.Sequence as Seq
 import qualified Network.Riak.Request as Req
 import qualified Network.Riak.Response as Resp
 import qualified Network.Riak.Types.Internal as T
+
+import Control.Monad.IO.Class
 
 -- | Check to see if the connection to the server is alive.
 ping :: Connection -> IO ()
@@ -123,6 +126,18 @@ foldKeys conn bucket f z0 = do
   let g z = f z . unescape
       loop z = do
         ListKeysResponse{..} <- recvResponse conn
+        z1 <- F.foldlM g z keys
+        if fromMaybe False done
+          then return z1
+          else loop z1
+  loop z0
+
+foldKeysM :: (MonadIO m) => Connection -> T.Bucket -> (a -> Key -> m a) -> a -> m a
+foldKeysM conn bucket f z0 = do
+  liftIO $ sendRequest conn $ Req.listKeys bucket
+  let g z = f z . unescape
+      loop z = do
+        ListKeysResponse{..} <- liftIO $ recvResponse conn
         z1 <- F.foldlM g z keys
         if fromMaybe False done
           then return z1
