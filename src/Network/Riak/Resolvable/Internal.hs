@@ -22,6 +22,7 @@ module Network.Riak.Resolvable.Internal
     , get
     , getMany
     , modify
+    , modifyM
     , modify_
     , modifyM_
     , put
@@ -163,7 +164,6 @@ modify doGet doPut conn bucket key r w dw act = do
   return (a',b)
 {-# INLINE modify #-}
 
-{-
 modifyM :: (MonadIO m, Resolvable a) => Get a -> Put a
        -> Connection -> Bucket -> Key -> R -> W -> DW -> (Maybe a -> m (a,b))
        -> m (a,b)
@@ -172,7 +172,7 @@ modifyM doGet doPut conn bucket key r w dw act = do
   (a,b) <- act (fst <$> a0)
   (a',_) <- liftIO $ put doPut conn bucket key (snd <$> a0) a w dw
   return (a',b)
--}
+{-# INLINE modifyM #-}
 
 modify_ :: (Resolvable a) => Get a -> Put a
         -> Connection -> Bucket -> Key -> R -> W -> DW -> (Maybe a -> IO a)
@@ -190,6 +190,7 @@ modifyM_ doGet doPut conn bucket key r w dw act = do
   a0 <- liftIO $ get doGet conn bucket key r
   a <- act (fst <$> a0)
   liftIO $ fst <$> put doPut conn bucket key (snd <$> a0) a w dw
+{-# INLINE modifyM_ #-}
 
 putMany :: (Resolvable a) =>
            (Connection -> Bucket -> [(Key, Maybe VClock, a)] -> W -> DW
