@@ -62,7 +62,6 @@ module Network.Riak
     -- * Metadata
     , listBuckets
     , foldKeys
-    , foldKeysM
     , getBucket
     , setBucket
     -- * Map/reduce

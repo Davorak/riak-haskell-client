@@ -37,7 +37,6 @@ module Network.Riak.Basic
     -- * Metadata
     , listBuckets
     , foldKeys
-    , foldKeysM
     , getBucket
     , setBucket
     -- * Map/reduce
@@ -120,20 +119,8 @@ listBuckets conn = Resp.listBuckets <$> exchange conn Req.listBuckets
 -- Fold over the keys in a bucket.
 --
 -- /Note/: this operation is expensive.  Do not use it in production.
-foldKeys :: Connection -> T.Bucket -> (a -> Key -> IO a) -> a -> IO a
+foldKeys :: (MonadIO m) => Connection -> T.Bucket -> (a -> Key -> m a) -> a -> m a
 foldKeys conn bucket f z0 = do
-  sendRequest conn $ Req.listKeys bucket
-  let g z = f z . unescape
-      loop z = do
-        ListKeysResponse{..} <- recvResponse conn
-        z1 <- F.foldlM g z keys
-        if fromMaybe False done
-          then return z1
-          else loop z1
-  loop z0
-
-foldKeysM :: (MonadIO m) => Connection -> T.Bucket -> (a -> Key -> m a) -> a -> m a
-foldKeysM conn bucket f z0 = do
   liftIO $ sendRequest conn $ Req.listKeys bucket
   let g z = f z . unescape
       loop z = do
