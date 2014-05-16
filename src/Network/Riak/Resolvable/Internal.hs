@@ -23,6 +23,7 @@ module Network.Riak.Resolvable.Internal
     , getMany
     , modify
     , modify_
+    , modifyM_
     , put
     , put_
     , putMany
@@ -33,6 +34,7 @@ import Control.Applicative ((<$>))
 import Control.Arrow (first)
 import Control.Exception (Exception, throwIO)
 import Control.Monad (unless)
+import Control.Monad.IO.Class
 import Data.Aeson.Types (FromJSON, ToJSON)
 import Data.Data (Data)
 import Data.Either (partitionEithers)
@@ -161,6 +163,17 @@ modify doGet doPut conn bucket key r w dw act = do
   return (a',b)
 {-# INLINE modify #-}
 
+{-
+modifyM :: (MonadIO m, Resolvable a) => Get a -> Put a
+       -> Connection -> Bucket -> Key -> R -> W -> DW -> (Maybe a -> m (a,b))
+       -> m (a,b)
+modifyM doGet doPut conn bucket key r w dw act = do
+  a0 <- liftIO $ get doGet conn bucket key r
+  (a,b) <- act (fst <$> a0)
+  (a',_) <- liftIO $ put doPut conn bucket key (snd <$> a0) a w dw
+  return (a',b)
+-}
+
 modify_ :: (Resolvable a) => Get a -> Put a
         -> Connection -> Bucket -> Key -> R -> W -> DW -> (Maybe a -> IO a)
         -> IO a
@@ -169,6 +182,14 @@ modify_ doGet doPut conn bucket key r w dw act = do
   a <- act (fst <$> a0)
   fst <$> put doPut conn bucket key (snd <$> a0) a w dw
 {-# INLINE modify_ #-}
+
+modifyM_ :: (MonadIO m, Resolvable a) => Get a -> Put a
+        -> Connection -> Bucket -> Key -> R -> W -> DW -> (Maybe a -> m a)
+        -> m a
+modifyM_ doGet doPut conn bucket key r w dw act = do
+  a0 <- liftIO $ get doGet conn bucket key r
+  a <- act (fst <$> a0)
+  liftIO $ fst <$> put doPut conn bucket key (snd <$> a0) a w dw
 
 putMany :: (Resolvable a) =>
            (Connection -> Bucket -> [(Key, Maybe VClock, a)] -> W -> DW

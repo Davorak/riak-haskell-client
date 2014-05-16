@@ -23,6 +23,7 @@ module Network.Riak.JSON.Resolvable
     , getMany
     , modify
     , modify_
+    , modifyM_
     -- * Low-level modification functions
     , put
     , put_
@@ -35,6 +36,8 @@ import Network.Riak.Resolvable.Internal (ResolutionFailure(..), Resolvable(..))
 import Network.Riak.Types.Internal hiding (MessageTag(..))
 import qualified Network.Riak.JSON as J
 import qualified Network.Riak.Resolvable.Internal as R
+
+import Control.Monad.IO.Class
 
 -- | Retrieve a single value.  If conflicting values are returned,
 -- 'resolve' is used to choose a winner.
@@ -88,6 +91,11 @@ modify_ :: (FromJSON a, ToJSON a, Resolvable a) =>
         -> (Maybe a -> IO a) -> IO a
 modify_ = R.modify_ J.get J.put
 {-# INLINE modify_ #-}
+
+modifyM_ :: (MonadIO m, FromJSON a, ToJSON a, Resolvable a) =>
+           Connection -> Bucket -> Key -> R -> W -> DW
+        -> (Maybe a -> m a) -> m a
+modifyM_ = R.modifyM_ J.get J.put
 
 -- | Store a single value, automatically resolving any vector clock
 -- conflicts that arise.  A single invocation of this function may
