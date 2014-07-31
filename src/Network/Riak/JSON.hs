@@ -33,6 +33,10 @@ import Data.Typeable (Typeable)
 import Network.Riak.Types.Internal
 import qualified Network.Riak.Value as V
 
+import Network.Riak.Protocol.Pair
+import Network.Riak.Protocol.Content
+import qualified Data.Sequence as Seq
+
 newtype JSON a = J {
       plain :: a -- ^ Unwrap a 'JSON'-wrapped value.
     } deriving (Eq, Ord, Show, Read, Bounded, Typeable, Monoid)
@@ -72,11 +76,23 @@ getMany conn bucket ks r = map (fmap convert) <$> V.getMany conn bucket ks r
 -- that the given bucket+key combination does not already exist.  If
 -- you omit a 'T.VClock' but the bucket+key /does/ exist, your value
 -- will not be stored.
-put :: (FromJSON c, ToJSON c) =>
+put
+    :: (FromJSON c, ToJSON c) =>
        Connection -> Bucket -> Key -> Maybe VClock -> c
     -> W -> DW -> IO ([c], VClock)
 put conn bucket key mvclock val w dw =
     convert <$> V.put conn bucket key mvclock (json val) w dw
+
+putWithIndexs
+    :: (FromJSON c, ToJSON c) =>
+         Connection -> Bucket -> Key -> Maybe VClock -> c
+    -> W -> DW -> Seq.Seq Pair
+    -> IO ([c], VClock)
+putIndexes conn bucket key mvclock val w dw ind =
+    convert <$> V.put conn bucket key mvclock jvi w dw
+  where
+    jv = json val
+    jvi = jv { indexes = indexes jv Seq.>< ind }
 
 -- | Store a single value, without the possibility of conflict
 -- resolution.
@@ -85,11 +101,23 @@ put conn bucket key mvclock val w dw =
 -- that the given bucket+key combination does not already exist.  If
 -- you omit a 'T.VClock' but the bucket+key /does/ exist, your value
 -- will not be stored, and you will not be notified.
-put_ :: (FromJSON c, ToJSON c) =>
+put_
+    :: (FromJSON c, ToJSON c) =>
        Connection -> Bucket -> Key -> Maybe VClock -> c
     -> W -> DW -> IO ()
 put_ conn bucket key mvclock val w dw =
     V.put_ conn bucket key mvclock (json val) w dw
+
+putIndexes_
+    :: (FromJSON c, ToJSON c) =>
+       Connection -> Bucket -> Key -> Maybe VClock -> c
+    -> W -> DW -> Seq.Seq Pair
+    -> IO ()
+putIndexes_ conn bucket key mvclock val w dw =
+    V.put_ conn bucket key mvclock jvi w dw
+  where
+    jv = json val
+    jvi = jv { indexes = indexes jv Seq.>< ind }
 
 -- | Store many values.  This may return multiple conflicting siblings
 -- for each value stored.  Choosing among them, and storing a new
@@ -104,7 +132,19 @@ putMany :: (FromJSON c, ToJSON c) =>
         -> W -> DW -> IO [([c], VClock)]
 putMany conn bucket puts w dw =
     map convert <$> V.putMany conn bucket (map f puts) w dw
-  where f (k,v,c) = (k,v,json c)
+  where
+    f (k, v, c) = (k, v, json c)
+
+putMany :: (FromJSON c, ToJSON c) =>
+           Connection -> Bucket -> [(Key, Maybe VClock, Seq.Seq Pair, c)]
+        -> W -> DW -> IO [([c], VClock)]
+putMany conn bucket puts w dw =
+    map convert <$> V.putMany conn bucket (map f puts) w dw
+  where
+    f (k, v, i, c) = (k, v, jvi)
+      where
+        jv = json c
+        jvi = jv { indexes = indexes jv Seq.>< i }
 
 -- | Store many values, without the possibility of conflict
 -- resolution.
@@ -114,10 +154,21 @@ putMany conn bucket puts w dw =
 -- you omit a 'T.VClock' but the bucket+key /does/ exist, your value
 -- will not be stored, and you will not be notified.
 putMany_ :: (FromJSON c, ToJSON c) =>
+            Connection -> Bucket -> [(Key, Maybe VClock, Seq.Seq Pair, c)]
+         -> W -> DW -> IO ()
+putMany_ conn bucket puts w dw = V.putMany_ conn bucket (map f puts) w dw
+  where
+    f (k, v, c) = (k, v, json c)
+
+putMany_ :: (FromJSON c, ToJSON c) =>
             Connection -> Bucket -> [(Key, Maybe VClock, c)]
          -> W -> DW -> IO ()
 putMany_ conn bucket puts w dw = V.putMany_ conn bucket (map f puts) w dw
-  where f (k,v,c) = (k,v,json c)
+  where
+    f (k, v, i, c) = (k, v, jvi)
+      where
+        jv = json c
+        jvi = jv { indexes = indexes jv Seq.>< i }
 
 convert :: ([JSON a], VClock) -> ([a], VClock)
 convert = first (map plain)
