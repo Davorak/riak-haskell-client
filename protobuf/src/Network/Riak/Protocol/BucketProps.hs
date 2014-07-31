@@ -10,66 +10,90 @@ import qualified Network.Riak.Protocol.BucketProps.ReplMode as Protocol.BucketPr
 import qualified Network.Riak.Protocol.CommitHook as Protocol (CommitHook)
 import qualified Network.Riak.Protocol.ModFun as Protocol (ModFun)
  
-data BucketProps = BucketProps{n_val :: !(P'.Maybe P'.Word32), allow_mult :: !(P'.Maybe P'.Bool),
-                               last_write_wins :: !(P'.Maybe P'.Bool), precommit :: !(P'.Seq Protocol.CommitHook),
-                               has_precommit :: !(P'.Maybe P'.Bool), postcommit :: !(P'.Seq Protocol.CommitHook),
-                               has_postcommit :: !(P'.Maybe P'.Bool), chash_keyfun :: !(P'.Maybe Protocol.ModFun),
-                               linkfun :: !(P'.Maybe Protocol.ModFun), old_vclock :: !(P'.Maybe P'.Word32),
-                               young_vclock :: !(P'.Maybe P'.Word32), big_vclock :: !(P'.Maybe P'.Word32),
-                               small_vclock :: !(P'.Maybe P'.Word32), pr :: !(P'.Maybe P'.Word32), r :: !(P'.Maybe P'.Word32),
-                               w :: !(P'.Maybe P'.Word32), pw :: !(P'.Maybe P'.Word32), dw :: !(P'.Maybe P'.Word32),
-                               rw :: !(P'.Maybe P'.Word32), basic_quorum :: !(P'.Maybe P'.Bool), notfound_ok :: !(P'.Maybe P'.Bool),
-                               backend :: !(P'.Maybe P'.ByteString), search :: !(P'.Maybe P'.Bool),
-                               repl :: !(P'.Maybe Protocol.BucketProps.ReplMode)}
+data BucketProps = BucketProps { n_val :: !(P'.Maybe P'.Word32)
+                               , allow_mult :: !(P'.Maybe P'.Bool)
+                               , last_write_wins :: !(P'.Maybe P'.Bool)
+                               , precommit :: !(P'.Seq Protocol.CommitHook)
+                               , has_precommit :: !(P'.Maybe P'.Bool)
+                               , postcommit :: !(P'.Seq Protocol.CommitHook)
+                               , has_postcommit :: !(P'.Maybe P'.Bool)
+                               , chash_keyfun :: !(P'.Maybe Protocol.ModFun)
+                               , linkfun :: !(P'.Maybe Protocol.ModFun)
+                               , old_vclock :: !(P'.Maybe P'.Word32)
+                               , young_vclock :: !(P'.Maybe P'.Word32)
+                               , big_vclock :: !(P'.Maybe P'.Word32)
+                               , small_vclock :: !(P'.Maybe P'.Word32)
+                               , pr :: !(P'.Maybe P'.Word32)
+                               , r :: !(P'.Maybe P'.Word32)
+                               , w :: !(P'.Maybe P'.Word32)
+                               , pw :: !(P'.Maybe P'.Word32)
+                               , dw :: !(P'.Maybe P'.Word32)
+                               , rw :: !(P'.Maybe P'.Word32)
+                               , basic_quorum :: !(P'.Maybe P'.Bool)
+                               , notfound_ok :: !(P'.Maybe P'.Bool)
+                               , backend :: !(P'.Maybe P'.ByteString)
+                               , search :: !(P'.Maybe P'.Bool)
+                               , repl :: !(P'.Maybe Protocol.BucketProps.ReplMode)
+                               }
                  deriving (Prelude'.Show, Prelude'.Eq, Prelude'.Ord, Prelude'.Typeable, Prelude'.Data)
  
 instance P'.Mergeable BucketProps where
   mergeAppend
    (BucketProps x'1 x'2 x'3 x'4 x'5 x'6 x'7 x'8 x'9 x'10 x'11 x'12 x'13 x'14 x'15 x'16 x'17 x'18 x'19 x'20 x'21 x'22 x'23 x'24)
    (BucketProps y'1 y'2 y'3 y'4 y'5 y'6 y'7 y'8 y'9 y'10 y'11 y'12 y'13 y'14 y'15 y'16 y'17 y'18 y'19 y'20 y'21 y'22 y'23 y'24)
-   = BucketProps (P'.mergeAppend x'1 y'1) (P'.mergeAppend x'2 y'2) (P'.mergeAppend x'3 y'3) (P'.mergeAppend x'4 y'4)
-      (P'.mergeAppend x'5 y'5)
-      (P'.mergeAppend x'6 y'6)
-      (P'.mergeAppend x'7 y'7)
-      (P'.mergeAppend x'8 y'8)
-      (P'.mergeAppend x'9 y'9)
-      (P'.mergeAppend x'10 y'10)
-      (P'.mergeAppend x'11 y'11)
-      (P'.mergeAppend x'12 y'12)
-      (P'.mergeAppend x'13 y'13)
-      (P'.mergeAppend x'14 y'14)
-      (P'.mergeAppend x'15 y'15)
-      (P'.mergeAppend x'16 y'16)
-      (P'.mergeAppend x'17 y'17)
-      (P'.mergeAppend x'18 y'18)
-      (P'.mergeAppend x'19 y'19)
-      (P'.mergeAppend x'20 y'20)
-      (P'.mergeAppend x'21 y'21)
-      (P'.mergeAppend x'22 y'22)
-      (P'.mergeAppend x'23 y'23)
-      (P'.mergeAppend x'24 y'24)
+   = BucketProps
+        (P'.mergeAppend x'1 y'1)
+        (P'.mergeAppend x'2 y'2)
+        (P'.mergeAppend x'3 y'3)
+        (P'.mergeAppend x'4 y'4)
+        (P'.mergeAppend x'5 y'5)
+        (P'.mergeAppend x'6 y'6)
+        (P'.mergeAppend x'7 y'7)
+        (P'.mergeAppend x'8 y'8)
+        (P'.mergeAppend x'9 y'9)
+        (P'.mergeAppend x'10 y'10)
+        (P'.mergeAppend x'11 y'11)
+        (P'.mergeAppend x'12 y'12)
+        (P'.mergeAppend x'13 y'13)
+        (P'.mergeAppend x'14 y'14)
+        (P'.mergeAppend x'15 y'15)
+        (P'.mergeAppend x'16 y'16)
+        (P'.mergeAppend x'17 y'17)
+        (P'.mergeAppend x'18 y'18)
+        (P'.mergeAppend x'19 y'19)
+        (P'.mergeAppend x'20 y'20)
+        (P'.mergeAppend x'21 y'21)
+        (P'.mergeAppend x'22 y'22)
+        (P'.mergeAppend x'23 y'23)
+        (P'.mergeAppend x'24 y'24)
  
 instance P'.Default BucketProps where
   defaultValue
-   = BucketProps P'.defaultValue P'.defaultValue P'.defaultValue P'.defaultValue (Prelude'.Just Prelude'.False) P'.defaultValue
-      (Prelude'.Just Prelude'.False)
-      P'.defaultValue
-      P'.defaultValue
-      P'.defaultValue
-      P'.defaultValue
-      P'.defaultValue
-      P'.defaultValue
-      P'.defaultValue
-      P'.defaultValue
-      P'.defaultValue
-      P'.defaultValue
-      P'.defaultValue
-      P'.defaultValue
-      P'.defaultValue
-      P'.defaultValue
-      P'.defaultValue
-      P'.defaultValue
-      P'.defaultValue
+   = BucketProps
+         P'.defaultValue
+         P'.defaultValue
+         P'.defaultValue
+         P'.defaultValue
+         (Prelude'.Just Prelude'.False)
+         P'.defaultValue
+         (Prelude'.Just Prelude'.False)
+         P'.defaultValue
+         P'.defaultValue
+         P'.defaultValue
+         P'.defaultValue
+         P'.defaultValue
+         P'.defaultValue
+         P'.defaultValue
+         P'.defaultValue
+         P'.defaultValue
+         P'.defaultValue
+         P'.defaultValue
+         P'.defaultValue
+         P'.defaultValue
+         P'.defaultValue
+         P'.defaultValue
+         P'.defaultValue
+         P'.defaultValue
  
 instance P'.Wire BucketProps where
   wireSize ft'
@@ -81,27 +105,31 @@ instance P'.Wire BucketProps where
        _ -> P'.wireSizeErr ft' self'
     where
         calc'Size
-         = (P'.wireSizeOpt 1 13 x'1 + P'.wireSizeOpt 1 8 x'2 + P'.wireSizeOpt 1 8 x'3 + P'.wireSizeRep 1 11 x'4 +
-             P'.wireSizeOpt 1 8 x'5
-             + P'.wireSizeRep 1 11 x'6
-             + P'.wireSizeOpt 1 8 x'7
-             + P'.wireSizeOpt 1 11 x'8
-             + P'.wireSizeOpt 1 11 x'9
-             + P'.wireSizeOpt 1 13 x'10
-             + P'.wireSizeOpt 1 13 x'11
-             + P'.wireSizeOpt 1 13 x'12
-             + P'.wireSizeOpt 1 13 x'13
-             + P'.wireSizeOpt 1 13 x'14
-             + P'.wireSizeOpt 1 13 x'15
-             + P'.wireSizeOpt 2 13 x'16
-             + P'.wireSizeOpt 2 13 x'17
-             + P'.wireSizeOpt 2 13 x'18
-             + P'.wireSizeOpt 2 13 x'19
-             + P'.wireSizeOpt 2 8 x'20
-             + P'.wireSizeOpt 2 8 x'21
-             + P'.wireSizeOpt 2 12 x'22
-             + P'.wireSizeOpt 2 8 x'23
-             + P'.wireSizeOpt 2 14 x'24)
+         = ( P'.wireSizeOpt 1 13 x'1
+           + P'.wireSizeOpt 1 8 x'2
+           + P'.wireSizeOpt 1 8 x'3
+           + P'.wireSizeRep 1 11 x'4
+           + P'.wireSizeOpt 1 8 x'5
+           + P'.wireSizeRep 1 11 x'6
+           + P'.wireSizeOpt 1 8 x'7
+           + P'.wireSizeOpt 1 11 x'8
+           + P'.wireSizeOpt 1 11 x'9
+           + P'.wireSizeOpt 1 13 x'10
+           + P'.wireSizeOpt 1 13 x'11
+           + P'.wireSizeOpt 1 13 x'12
+           + P'.wireSizeOpt 1 13 x'13
+           + P'.wireSizeOpt 1 13 x'14
+           + P'.wireSizeOpt 1 13 x'15
+           + P'.wireSizeOpt 2 13 x'16
+           + P'.wireSizeOpt 2 13 x'17
+           + P'.wireSizeOpt 2 13 x'18
+           + P'.wireSizeOpt 2 13 x'19
+           + P'.wireSizeOpt 2 8 x'20
+           + P'.wireSizeOpt 2 8 x'21
+           + P'.wireSizeOpt 2 12 x'22
+           + P'.wireSizeOpt 2 8 x'23
+           + P'.wireSizeOpt 2 14 x'24
+           )
   wirePut ft'
    self'@(BucketProps x'1 x'2 x'3 x'4 x'5 x'6 x'7 x'8 x'9 x'10 x'11 x'12 x'13 x'14 x'15 x'16 x'17 x'18 x'19 x'20 x'21 x'22 x'23
            x'24)

@@ -7,26 +7,39 @@ import qualified Data.Typeable as Prelude'
 import qualified Data.Data as Prelude'
 import qualified Text.ProtocolBuffers.Header as P'
  
-data CounterGetRequest = CounterGetRequest{bucket :: !P'.ByteString, key :: !P'.ByteString, r :: !(P'.Maybe P'.Word32),
-                                           pr :: !(P'.Maybe P'.Word32), basic_quorum :: !(P'.Maybe P'.Bool),
-                                           notfound_ok :: !(P'.Maybe P'.Bool)}
+data CounterGetRequest = CounterGetRequest { bucket :: !P'.ByteString
+                                           , key :: !P'.ByteString, r :: !(P'.Maybe P'.Word32)
+                                           , pr :: !(P'.Maybe P'.Word32)
+                                           , basic_quorum :: !(P'.Maybe P'.Bool)
+                                           , notfound_ok :: !(P'.Maybe P'.Bool)
+                                           }
                        deriving (Prelude'.Show, Prelude'.Eq, Prelude'.Ord, Prelude'.Typeable, Prelude'.Data)
  
 instance P'.Mergeable CounterGetRequest where
   mergeAppend (CounterGetRequest x'1 x'2 x'3 x'4 x'5 x'6) (CounterGetRequest y'1 y'2 y'3 y'4 y'5 y'6)
-   = CounterGetRequest (P'.mergeAppend x'1 y'1) (P'.mergeAppend x'2 y'2) (P'.mergeAppend x'3 y'3) (P'.mergeAppend x'4 y'4)
-      (P'.mergeAppend x'5 y'5)
-      (P'.mergeAppend x'6 y'6)
+   = CounterGetRequest
+        (P'.mergeAppend x'1 y'1)
+        (P'.mergeAppend x'2 y'2)
+        (P'.mergeAppend x'3 y'3)
+        (P'.mergeAppend x'4 y'4)
+        (P'.mergeAppend x'5 y'5)
+        (P'.mergeAppend x'6 y'6)
  
 instance P'.Default CounterGetRequest where
-  defaultValue = CounterGetRequest P'.defaultValue P'.defaultValue P'.defaultValue P'.defaultValue P'.defaultValue P'.defaultValue
+  defaultValue = CounterGetRequest
+                     P'.defaultValue
+                     P'.defaultValue
+                     P'.defaultValue
+                     P'.defaultValue
+                     P'.defaultValue
+                     P'.defaultValue
  
 instance P'.Wire CounterGetRequest where
   wireSize ft' self'@(CounterGetRequest x'1 x'2 x'3 x'4 x'5 x'6)
    = case ft' of
        10 -> calc'Size
        11 -> P'.prependMessageSize calc'Size
-       _ -> P'.wireSizeErr ft' self'
+       _  -> P'.wireSizeErr ft' self'
     where
         calc'Size
          = (P'.wireSizeReq 1 12 x'1 + P'.wireSizeReq 1 12 x'2 + P'.wireSizeOpt 1 13 x'3 + P'.wireSizeOpt 1 13 x'4 +
@@ -38,7 +51,7 @@ instance P'.Wire CounterGetRequest where
        11 -> do
                P'.putSize (P'.wireSize 10 self')
                put'Fields
-       _ -> P'.wirePutErr ft' self'
+       _  -> P'.wirePutErr ft' self'
     where
         put'Fields
          = do
@@ -52,7 +65,7 @@ instance P'.Wire CounterGetRequest where
    = case ft' of
        10 -> P'.getBareMessageWith update'Self
        11 -> P'.getMessageWith update'Self
-       _ -> P'.wireGetErr ft'
+       _  -> P'.wireGetErr ft'
     where
         update'Self wire'Tag old'Self
          = case wire'Tag of
@@ -62,7 +75,7 @@ instance P'.Wire CounterGetRequest where
              32 -> Prelude'.fmap (\ !new'Field -> old'Self{pr = Prelude'.Just new'Field}) (P'.wireGet 13)
              40 -> Prelude'.fmap (\ !new'Field -> old'Self{basic_quorum = Prelude'.Just new'Field}) (P'.wireGet 8)
              48 -> Prelude'.fmap (\ !new'Field -> old'Self{notfound_ok = Prelude'.Just new'Field}) (P'.wireGet 8)
-             _ -> let (field'Number, wire'Type) = P'.splitWireTag wire'Tag in P'.unknown field'Number wire'Type old'Self
+             _  -> let (field'Number, wire'Type) = P'.splitWireTag wire'Tag in P'.unknown field'Number wire'Type old'Self
  
 instance P'.MessageAPI msg' (msg' -> CounterGetRequest) CounterGetRequest where
   getVal m' f' = f' m'

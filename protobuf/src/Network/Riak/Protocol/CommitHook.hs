@@ -8,11 +8,14 @@ import qualified Data.Data as Prelude'
 import qualified Text.ProtocolBuffers.Header as P'
 import qualified Network.Riak.Protocol.ModFun as Protocol (ModFun)
  
-data CommitHook = CommitHook{modfun :: !(P'.Maybe Protocol.ModFun), name :: !(P'.Maybe P'.ByteString)}
+data CommitHook = CommitHook { modfun :: !(P'.Maybe Protocol.ModFun)
+                             , name :: !(P'.Maybe P'.ByteString)
+                             }
                 deriving (Prelude'.Show, Prelude'.Eq, Prelude'.Ord, Prelude'.Typeable, Prelude'.Data)
  
 instance P'.Mergeable CommitHook where
-  mergeAppend (CommitHook x'1 x'2) (CommitHook y'1 y'2) = CommitHook (P'.mergeAppend x'1 y'1) (P'.mergeAppend x'2 y'2)
+  mergeAppend (CommitHook x'1 x'2) (CommitHook y'1 y'2) =
+    CommitHook (P'.mergeAppend x'1 y'1) (P'.mergeAppend x'2 y'2)
  
 instance P'.Default CommitHook where
   defaultValue = CommitHook P'.defaultValue P'.defaultValue
@@ -22,7 +25,7 @@ instance P'.Wire CommitHook where
    = case ft' of
        10 -> calc'Size
        11 -> P'.prependMessageSize calc'Size
-       _ -> P'.wireSizeErr ft' self'
+       _  -> P'.wireSizeErr ft' self'
     where
         calc'Size = (P'.wireSizeOpt 1 11 x'1 + P'.wireSizeOpt 1 12 x'2)
   wirePut ft' self'@(CommitHook x'1 x'2)
@@ -31,7 +34,7 @@ instance P'.Wire CommitHook where
        11 -> do
                P'.putSize (P'.wireSize 10 self')
                put'Fields
-       _ -> P'.wirePutErr ft' self'
+       _  -> P'.wirePutErr ft' self'
     where
         put'Fields
          = do
@@ -41,14 +44,14 @@ instance P'.Wire CommitHook where
    = case ft' of
        10 -> P'.getBareMessageWith update'Self
        11 -> P'.getMessageWith update'Self
-       _ -> P'.wireGetErr ft'
+       _  -> P'.wireGetErr ft'
     where
         update'Self wire'Tag old'Self
          = case wire'Tag of
              10 -> Prelude'.fmap (\ !new'Field -> old'Self{modfun = P'.mergeAppend (modfun old'Self) (Prelude'.Just new'Field)})
                     (P'.wireGet 11)
              18 -> Prelude'.fmap (\ !new'Field -> old'Self{name = Prelude'.Just new'Field}) (P'.wireGet 12)
-             _ -> let (field'Number, wire'Type) = P'.splitWireTag wire'Tag in P'.unknown field'Number wire'Type old'Self
+             _  -> let (field'Number, wire'Type) = P'.splitWireTag wire'Tag in P'.unknown field'Number wire'Type old'Self
  
 instance P'.MessageAPI msg' (msg' -> CommitHook) CommitHook where
   getVal m' f' = f' m'

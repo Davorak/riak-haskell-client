@@ -7,17 +7,29 @@ import qualified Data.Typeable as Prelude'
 import qualified Data.Data as Prelude'
 import qualified Text.ProtocolBuffers.Header as P'
  
-data GetRequest = GetRequest{bucket :: !P'.ByteString, key :: !P'.ByteString, r :: !(P'.Maybe P'.Word32),
-                             pr :: !(P'.Maybe P'.Word32), basic_quorum :: !(P'.Maybe P'.Bool), notfound_ok :: !(P'.Maybe P'.Bool),
-                             if_modified :: !(P'.Maybe P'.ByteString), head :: !(P'.Maybe P'.Bool),
-                             deletedvclock :: !(P'.Maybe P'.Bool), timeout :: !(P'.Maybe P'.Word32),
-                             sloppy_quorum :: !(P'.Maybe P'.Bool), n_val :: !(P'.Maybe P'.Word32)}
+data GetRequest = GetRequest{ bucket :: !P'.ByteString
+                            , key :: !P'.ByteString
+                            , r :: !(P'.Maybe P'.Word32)
+                            , pr :: !(P'.Maybe P'.Word32)
+                            , basic_quorum :: !(P'.Maybe P'.Bool)
+                            , notfound_ok :: !(P'.Maybe P'.Bool)
+                            , if_modified :: !(P'.Maybe P'.ByteString)
+                            , head :: !(P'.Maybe P'.Bool)
+                            , deletedvclock :: !(P'.Maybe P'.Bool)
+                            , timeout :: !(P'.Maybe P'.Word32)
+                            , sloppy_quorum :: !(P'.Maybe P'.Bool)
+                            , n_val :: !(P'.Maybe P'.Word32)
+                            }
                 deriving (Prelude'.Show, Prelude'.Eq, Prelude'.Ord, Prelude'.Typeable, Prelude'.Data)
  
 instance P'.Mergeable GetRequest where
   mergeAppend (GetRequest x'1 x'2 x'3 x'4 x'5 x'6 x'7 x'8 x'9 x'10 x'11 x'12)
    (GetRequest y'1 y'2 y'3 y'4 y'5 y'6 y'7 y'8 y'9 y'10 y'11 y'12)
-   = GetRequest (P'.mergeAppend x'1 y'1) (P'.mergeAppend x'2 y'2) (P'.mergeAppend x'3 y'3) (P'.mergeAppend x'4 y'4)
+   = GetRequest
+      (P'.mergeAppend x'1 y'1)
+      (P'.mergeAppend x'2 y'2)
+      (P'.mergeAppend x'3 y'3)
+      (P'.mergeAppend x'4 y'4)
       (P'.mergeAppend x'5 y'5)
       (P'.mergeAppend x'6 y'6)
       (P'.mergeAppend x'7 y'7)
@@ -44,15 +56,19 @@ instance P'.Wire GetRequest where
        _ -> P'.wireSizeErr ft' self'
     where
         calc'Size
-         = (P'.wireSizeReq 1 12 x'1 + P'.wireSizeReq 1 12 x'2 + P'.wireSizeOpt 1 13 x'3 + P'.wireSizeOpt 1 13 x'4 +
-             P'.wireSizeOpt 1 8 x'5
-             + P'.wireSizeOpt 1 8 x'6
-             + P'.wireSizeOpt 1 12 x'7
-             + P'.wireSizeOpt 1 8 x'8
-             + P'.wireSizeOpt 1 8 x'9
-             + P'.wireSizeOpt 1 13 x'10
-             + P'.wireSizeOpt 1 8 x'11
-             + P'.wireSizeOpt 1 13 x'12)
+         = ( P'.wireSizeReq 1 12 x'1
+           + P'.wireSizeReq 1 12 x'2
+           + P'.wireSizeOpt 1 13 x'3
+           + P'.wireSizeOpt 1 13 x'4
+           + P'.wireSizeOpt 1 8 x'5
+           + P'.wireSizeOpt 1 8 x'6
+           + P'.wireSizeOpt 1 12 x'7
+           + P'.wireSizeOpt 1 8 x'8
+           + P'.wireSizeOpt 1 8 x'9
+           + P'.wireSizeOpt 1 13 x'10
+           + P'.wireSizeOpt 1 8 x'11
+           + P'.wireSizeOpt 1 13 x'12
+           )
   wirePut ft' self'@(GetRequest x'1 x'2 x'3 x'4 x'5 x'6 x'7 x'8 x'9 x'10 x'11 x'12)
    = case ft' of
        10 -> put'Fields

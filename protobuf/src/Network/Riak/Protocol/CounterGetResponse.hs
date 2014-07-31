@@ -7,11 +7,12 @@ import qualified Data.Typeable as Prelude'
 import qualified Data.Data as Prelude'
 import qualified Text.ProtocolBuffers.Header as P'
  
-data CounterGetResponse = CounterGetResponse{value :: !(P'.Maybe P'.Int64)}
+data CounterGetResponse = CounterGetResponse{ value :: !(P'.Maybe P'.Int64) }
                         deriving (Prelude'.Show, Prelude'.Eq, Prelude'.Ord, Prelude'.Typeable, Prelude'.Data)
  
 instance P'.Mergeable CounterGetResponse where
-  mergeAppend (CounterGetResponse x'1) (CounterGetResponse y'1) = CounterGetResponse (P'.mergeAppend x'1 y'1)
+  mergeAppend (CounterGetResponse x'1) (CounterGetResponse y'1) =
+    CounterGetResponse (P'.mergeAppend x'1 y'1)
  
 instance P'.Default CounterGetResponse where
   defaultValue = CounterGetResponse P'.defaultValue
@@ -21,7 +22,7 @@ instance P'.Wire CounterGetResponse where
    = case ft' of
        10 -> calc'Size
        11 -> P'.prependMessageSize calc'Size
-       _ -> P'.wireSizeErr ft' self'
+       _  -> P'.wireSizeErr ft' self'
     where
         calc'Size = (P'.wireSizeOpt 1 18 x'1)
   wirePut ft' self'@(CounterGetResponse x'1)
@@ -30,7 +31,7 @@ instance P'.Wire CounterGetResponse where
        11 -> do
                P'.putSize (P'.wireSize 10 self')
                put'Fields
-       _ -> P'.wirePutErr ft' self'
+       _  -> P'.wirePutErr ft' self'
     where
         put'Fields
          = do
@@ -39,12 +40,12 @@ instance P'.Wire CounterGetResponse where
    = case ft' of
        10 -> P'.getBareMessageWith update'Self
        11 -> P'.getMessageWith update'Self
-       _ -> P'.wireGetErr ft'
+       _  -> P'.wireGetErr ft'
     where
         update'Self wire'Tag old'Self
          = case wire'Tag of
              8 -> Prelude'.fmap (\ !new'Field -> old'Self{value = Prelude'.Just new'Field}) (P'.wireGet 18)
-             _ -> let (field'Number, wire'Type) = P'.splitWireTag wire'Tag in P'.unknown field'Number wire'Type old'Self
+             _  -> let (field'Number, wire'Type) = P'.splitWireTag wire'Tag in P'.unknown field'Number wire'Type old'Self
  
 instance P'.MessageAPI msg' (msg' -> CounterGetResponse) CounterGetResponse where
   getVal m' f' = f' m'
