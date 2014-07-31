@@ -20,9 +20,14 @@ module Network.Riak.JSON
     , get
     , getMany
     , put
+    , putIndex
     , put_
+    , putIndex_
     , putMany
+    , putManyIndex
     , putMany_
+    , putManyIndex_
+    , firstM
     ) where
 
 import Control.Applicative ((<$>))
@@ -83,15 +88,20 @@ put
 put conn bucket key mvclock val w dw =
     convert <$> V.put conn bucket key mvclock (json val) w dw
 
-putWithIndexs
+firstM mf (x, y) = do
+    x' <- mf x
+    return (x', y)
+
+putIndex
     :: (FromJSON c, ToJSON c) =>
          Connection -> Bucket -> Key -> Maybe VClock -> c
     -> W -> DW -> Seq.Seq Pair
     -> IO ([c], VClock)
-putIndexes conn bucket key mvclock val w dw ind =
-    convert <$> V.put conn bucket key mvclock jvi w dw
+putIndex conn bucket key mvclock val w dw ind =
+--    convert <$> (V.put conn bucket key mvclock (json val) w dw)
+    convert <$> (firstM (V.convert . Seq.fromList) =<< V.put conn bucket key mvclock jvi w dw)
   where
-    jv = json val
+    jv = V.toContent . json $ val
     jvi = jv { indexes = indexes jv Seq.>< ind }
 
 -- | Store a single value, without the possibility of conflict
@@ -108,15 +118,15 @@ put_
 put_ conn bucket key mvclock val w dw =
     V.put_ conn bucket key mvclock (json val) w dw
 
-putIndexes_
+putIndex_
     :: (FromJSON c, ToJSON c) =>
        Connection -> Bucket -> Key -> Maybe VClock -> c
     -> W -> DW -> Seq.Seq Pair
     -> IO ()
-putIndexes_ conn bucket key mvclock val w dw =
+putIndex_ conn bucket key mvclock val w dw ind =
     V.put_ conn bucket key mvclock jvi w dw
   where
-    jv = json val
+    jv = V.toContent . json $ val
     jvi = jv { indexes = indexes jv Seq.>< ind }
 
 -- | Store many values.  This may return multiple conflicting siblings
@@ -135,15 +145,17 @@ putMany conn bucket puts w dw =
   where
     f (k, v, c) = (k, v, json c)
 
-putMany :: (FromJSON c, ToJSON c) =>
+putManyIndex :: (FromJSON c, ToJSON c) =>
            Connection -> Bucket -> [(Key, Maybe VClock, Seq.Seq Pair, c)]
         -> W -> DW -> IO [([c], VClock)]
-putMany conn bucket puts w dw =
-    map convert <$> V.putMany conn bucket (map f puts) w dw
+putManyIndex conn bucket puts w dw =
+--    map convert <$> V.putMany conn bucket (map f puts) w dw
+    map convert <$> (mapM (firstM (V.convert . Seq.fromList)) =<< V.putMany conn bucket (map f puts) w dw)
   where
+--    f (k, v, i, c) = (k, v, json c)
     f (k, v, i, c) = (k, v, jvi)
       where
-        jv = json c
+        jv = V.toContent . json $ c
         jvi = jv { indexes = indexes jv Seq.>< i }
 
 -- | Store many values, without the possibility of conflict
@@ -154,20 +166,20 @@ putMany conn bucket puts w dw =
 -- you omit a 'T.VClock' but the bucket+key /does/ exist, your value
 -- will not be stored, and you will not be notified.
 putMany_ :: (FromJSON c, ToJSON c) =>
-            Connection -> Bucket -> [(Key, Maybe VClock, Seq.Seq Pair, c)]
+            Connection -> Bucket -> [(Key, Maybe VClock, c)]
          -> W -> DW -> IO ()
 putMany_ conn bucket puts w dw = V.putMany_ conn bucket (map f puts) w dw
   where
     f (k, v, c) = (k, v, json c)
 
-putMany_ :: (FromJSON c, ToJSON c) =>
-            Connection -> Bucket -> [(Key, Maybe VClock, c)]
+putManyIndex_ :: (FromJSON c, ToJSON c) =>
+            Connection -> Bucket -> [(Key, Maybe VClock, Seq.Seq Pair, c)]
          -> W -> DW -> IO ()
-putMany_ conn bucket puts w dw = V.putMany_ conn bucket (map f puts) w dw
+putManyIndex_ conn bucket puts w dw = V.putMany_ conn bucket (map f puts) w dw
   where
     f (k, v, i, c) = (k, v, jvi)
       where
-        jv = json c
+        jv = V.toContent . json $ c
         jvi = jv { indexes = indexes jv Seq.>< i }
 
 convert :: ([JSON a], VClock) -> ([a], VClock)

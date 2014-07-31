@@ -25,6 +25,7 @@ module Network.Riak.Value
     , put_
     , putMany
     , putMany_
+    , convert
     ) where
 
 import Control.Applicative
